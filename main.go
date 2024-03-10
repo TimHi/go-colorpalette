@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	src.GetColors("https://f4.bcbits.com/img/0018109799_2.jpg")
+	src.GetColors("https://f4.bcbits.com/img/0020097084_2.jpg")
 
 	// e := echo.New()
 	// e.GET("/", func(c echo.Context) error {
