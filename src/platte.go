@@ -13,27 +13,31 @@ import (
 	"sort"
 )
 
-func GetColors(url string) ([]string, error) {
+type colorCount struct {
+	color color.Color
+	count int
+}
+
+func GetColors(url string) ([]color.Color, error) {
 	res, err := http.Get(url)
 
 	if err != nil {
-		log.Fatalf("http.Get -> %v", err)
+		log.Printf("http.Get -> %v \n", err)
 	}
 
 	data, err := io.ReadAll(res.Body)
 
 	if err != nil {
-		log.Fatalf("ioutil.ReadAll -> %v", err)
+		log.Println(err)
 	}
 	res.Body.Close()
 
 	img, _, err := image.Decode(bytes.NewBuffer(data))
 	if err != nil {
 		fmt.Println("Error decoding image:", err)
-		return []string{}, err
+		return []color.Color{}, err
 	}
 
-	log.Println("Start analyzing colors")
 	colorCounts := make(map[color.Color]int)
 	for y := 0; y < img.Bounds().Max.Y; y++ {
 		for x := 0; x < img.Bounds().Max.X; x++ {
@@ -41,13 +45,12 @@ func GetColors(url string) ([]string, error) {
 		}
 	}
 	mostProminentColors := getMostProminentColors(colorCounts)
-	log.Println(mostProminentColors)
-	return []string{}, nil
-}
 
-type colorCount struct {
-	color color.Color
-	count int
+	rgbColors := []color.Color{}
+	for _, color := range mostProminentColors {
+		rgbColors = append(rgbColors, color.color)
+	}
+	return rgbColors, nil
 }
 
 func getMostProminentColors(colorCounts map[color.Color]int) []colorCount {
@@ -63,7 +66,5 @@ func getMostProminentColors(colorCounts map[color.Color]int) []colorCount {
 		return colorCountSlice[i].count > colorCountSlice[j].count
 	})
 
-	sec := colorCountSlice[0:3:4]
-
-	return sec
+	return colorCountSlice[0:3:4]
 }
