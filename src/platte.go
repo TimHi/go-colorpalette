@@ -18,7 +18,7 @@ type colorCount struct {
 	count int
 }
 
-func GetColors(url string) ([]color.Color, error) {
+func GetColors(url string) ([]string, error) {
 	res, err := http.Get(url)
 
 	if err != nil {
@@ -35,7 +35,7 @@ func GetColors(url string) ([]color.Color, error) {
 	img, _, err := image.Decode(bytes.NewBuffer(data))
 	if err != nil {
 		fmt.Println("Error decoding image:", err)
-		return []color.Color{}, err
+		return []string{}, err
 	}
 
 	colorCounts := make(map[color.Color]int)
@@ -46,11 +46,17 @@ func GetColors(url string) ([]color.Color, error) {
 	}
 	mostProminentColors := getMostProminentColors(colorCounts)
 
-	rgbColors := []color.Color{}
+	hexColors := []string{}
 	for _, color := range mostProminentColors {
-		rgbColors = append(rgbColors, color.color)
+		hexColors = append(hexColors, colorToHex(color.color))
 	}
-	return rgbColors, nil
+	return hexColors, nil
+}
+
+func colorToHex(c color.Color) string {
+	r, g, b, _ := c.RGBA()
+	hexValue := fmt.Sprintf("#%02X%02X%02X", uint8(r>>8), uint8(g>>8), uint8(b>>8))
+	return hexValue
 }
 
 func getMostProminentColors(colorCounts map[color.Color]int) []colorCount {
